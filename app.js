@@ -30,8 +30,11 @@ app.set('view engine', 'handlebars')
 
 //setting static files
 app.use(express.static('public'))
+app.use(express.urlencoded({ extended: true }))//body-parser
 
 //Setting route and corresponding response
+
+//瀏覽全部餐廳
 app.get('/',(req,res)=>{
   Restaurant.find()
     .lean()
@@ -39,6 +42,19 @@ app.get('/',(req,res)=>{
     .catch(error=>console.log(error))
 })
 
+//新增餐廳頁面
+app.get('/restaurants/new', (req,res)=>{
+  res.render('new')
+})
+
+//新增餐廳
+app.post('/restaurants',(req,res)=>{
+  Restaurant.create(req.body)
+    .then(()=>res.redirect('/'))
+    .catch(error=>console.log(error))
+})
+
+//瀏覽特定餐廳
 app.get('/restaurants/:restaurant_id', (req,res)=>{
   const restaurant_id = req.params.restaurant_id
   return Restaurant.findById(restaurant_id)
