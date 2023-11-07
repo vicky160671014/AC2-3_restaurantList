@@ -63,6 +63,24 @@ app.get('/restaurants/:restaurant_id', (req,res)=>{
     .catch(error=>console.log(error))
 })
 
+//瀏覽特定餐廳編輯頁面
+app.get('/restaurants/:restaurant_id/edit', (req, res) => {
+  const restaurant_id = req.params.restaurant_id
+  return Restaurant.findById(restaurant_id)
+    .lean()
+    .then(restaurant => res.render('edit', { restaurant: restaurant }))
+    .catch(error => console.log(error))
+})
+
+//修改特定餐廳編輯頁面
+app.post('/restaurants/:restaurant_id/edit',(req,res)=>{
+  const restaurant_id = req.params.restaurant_id
+  const restaurantEdit = req.body
+  Restaurant.findByIdAndUpdate(restaurant_id, restaurantEdit)
+    .then(() => res.redirect(`/restaurants/${restaurant_id}`))
+    .catch(error=>console.log(error))
+})
+
 app.get('/search', (req,res)=>{
   
   if(!req.query.keywords){
