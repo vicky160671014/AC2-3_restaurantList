@@ -81,6 +81,14 @@ app.post('/restaurants/:restaurant_id/edit',(req,res)=>{
     .catch(error=>console.log(error))
 })
 
+//刪除餐廳
+app.post('/restaurants/:restaurant_id/delete',(req,res)=>{
+  const restaurant_id = req.params.restaurant_id
+  Restaurant.findByIdAndDelete(restaurant_id)
+    .then(()=>res.redirect('/'))
+    .catch(error=>console.log(error))
+})
+
 app.get('/search', (req,res)=>{
   
   if(!req.query.keywords){
