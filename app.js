@@ -24,6 +24,7 @@ db.once('open',()=>{
 //require express-handlebars here
 const exphbs = require('express-handlebars')
 const Restaurant = require('./models/restaurant')
+const routes = require('./routes')
 
 //setting template engine
 app.engine('handlebars', exphbs({defaultLayout : 'main'}))
@@ -33,103 +34,7 @@ app.set('view engine', 'handlebars')
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))//body-parser
 app.use(methodOverride('_method'))
-
-//Setting route and corresponding response
-
-//瀏覽全部餐廳
-app.get('/',(req,res)=>{
-  Restaurant.find()
-    .lean()
-    .then(restaurants=>res.render('index',{restaurants}))
-    .catch(error=>console.log(error))
-})
-
-//以sort分類瀏覽全部餐廳
-app.get('/sort/:sort',(req,res)=>{
-  const sortOptions = {
-    'nameAsc':'name',
-    'nameDesc':'-name',
-    'category':'category',
-    'location':'location'
-  }
-
-  let sortParams = sortOptions[req.params.sort]
-  Restaurant.find()
-    .lean()
-    .sort(sortParams)
-    .then(restaurants => res.render('index', { restaurants }))
-    .catch(error => console.log(error))
-})
-
-//新增餐廳頁面
-app.get('/restaurants/new', (req,res)=>{
-  res.render('new')
-})
-
-//新增餐廳
-app.post('/restaurants',(req,res)=>{
-  Restaurant.create(req.body)
-    .then(()=>res.redirect('/'))
-    .catch(error=>console.log(error))
-})
-
-//瀏覽特定餐廳
-app.get('/restaurants/:restaurant_id', (req,res)=>{
-  const restaurant_id = req.params.restaurant_id
-  return Restaurant.findById(restaurant_id)
-    .lean()
-    .then(restaurant => res.render('show', { restaurant: restaurant }))
-    .catch(error=>console.log(error))
-})
-
-//瀏覽特定餐廳編輯頁面
-app.get('/restaurants/:restaurant_id/edit', (req, res) => {
-  const restaurant_id = req.params.restaurant_id
-  return Restaurant.findById(restaurant_id)
-    .lean()
-    .then(restaurant => res.render('edit', { restaurant: restaurant }))
-    .catch(error => console.log(error))
-})
-
-//修改特定餐廳編輯頁面
-app.put('/restaurants/:restaurant_id',(req,res)=>{
-  const restaurant_id = req.params.restaurant_id
-  const restaurantEdit = req.body
-  Restaurant.findByIdAndUpdate(restaurant_id, restaurantEdit)
-    .then(() => res.redirect(`/restaurants/${restaurant_id}`))
-    .catch(error=>console.log(error))
-})
-
-//刪除餐廳
-app.delete('/restaurants/:restaurant_id',(req,res)=>{
-  const restaurant_id = req.params.restaurant_id
-  Restaurant.findByIdAndDelete(restaurant_id)
-    .then(()=>res.redirect('/'))
-    .catch(error=>console.log(error))
-})
-
-//搜尋餐廳
-app.get('/search', (req,res)=>{
-  
-  if(!req.query.keywords){
-    return res.redirect('/')
-  }//搜尋欄的空值的時候，重新導向跟目錄
-
-  const keywords = req.query.keywords
-  const keyword = keywords.trim().toLowerCase() //移除起始結尾的空白字元
-
-  Restaurant.find()
-    .lean()
-    .then(restaurantsData =>{
-      const restaurantSearch = restaurantsData.filter(data=>
-        data.name.toLowerCase().includes(keyword) ||
-        data.category.includes(keyword)
-        )
-      res.render('index', { restaurants: restaurantSearch, keyword: keywords })
-
-    })
-    .catch(error=>console.log(error))
-})
+app.use(routes)//Setting routes
 
 //Listen the server
 app.listen(port, ()=>{
