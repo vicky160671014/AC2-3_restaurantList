@@ -42,6 +42,23 @@ app.get('/',(req,res)=>{
     .catch(error=>console.log(error))
 })
 
+//以sort分類瀏覽全部餐廳
+app.get('/sort/:sort',(req,res)=>{
+  const sortOptions = {
+    'nameAsc':'name',
+    'nameDesc':'-name',
+    'category':'category',
+    'location':'location'
+  }
+
+  let sortParams = sortOptions[req.params.sort]
+  Restaurant.find()
+    .lean()
+    .sort(sortParams)
+    .then(restaurants => res.render('index', { restaurants }))
+    .catch(error => console.log(error))
+})
+
 //新增餐廳頁面
 app.get('/restaurants/new', (req,res)=>{
   res.render('new')
