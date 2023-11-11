@@ -1,6 +1,7 @@
 //Include express from node_modules and define server related variables
 const express = require('express')
 const mongoose = require('mongoose')
+const methodOverride = require('method-override')
 
 if(process.env.NODE_ENV !== 'production'){
   require('dotenv').config()
@@ -31,6 +32,7 @@ app.set('view engine', 'handlebars')
 //setting static files
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))//body-parser
+app.use(methodOverride('_method'))
 
 //Setting route and corresponding response
 
@@ -90,7 +92,7 @@ app.get('/restaurants/:restaurant_id/edit', (req, res) => {
 })
 
 //修改特定餐廳編輯頁面
-app.post('/restaurants/:restaurant_id/edit',(req,res)=>{
+app.put('/restaurants/:restaurant_id',(req,res)=>{
   const restaurant_id = req.params.restaurant_id
   const restaurantEdit = req.body
   Restaurant.findByIdAndUpdate(restaurant_id, restaurantEdit)
@@ -99,7 +101,7 @@ app.post('/restaurants/:restaurant_id/edit',(req,res)=>{
 })
 
 //刪除餐廳
-app.post('/restaurants/:restaurant_id/delete',(req,res)=>{
+app.delete('/restaurants/:restaurant_id',(req,res)=>{
   const restaurant_id = req.params.restaurant_id
   Restaurant.findByIdAndDelete(restaurant_id)
     .then(()=>res.redirect('/'))
