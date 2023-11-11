@@ -89,17 +89,27 @@ app.post('/restaurants/:restaurant_id/delete',(req,res)=>{
     .catch(error=>console.log(error))
 })
 
+//搜尋餐廳
 app.get('/search', (req,res)=>{
   
   if(!req.query.keywords){
     return res.redirect('/')
   }//搜尋欄的空值的時候，重新導向跟目錄
 
-  console.log('req.query.keywords', req.query.keywords)
   const keywords = req.query.keywords
   const keyword = keywords.trim().toLowerCase() //移除起始結尾的空白字元
-  const restaurantSearch = restaurantList.results.filter(restaurant => restaurant.name.includes(keyword) || restaurant.category.includes(keyword))
-  res.render('index', { restaurants: restaurantSearch, keyword : keywords })
+
+  Restaurant.find()
+    .lean()
+    .then(restaurantsData =>{
+      const restaurantSearch = restaurantsData.filter(data=>
+        data.name.toLowerCase().includes(keyword) ||
+        data.category.includes(keyword)
+        )
+      res.render('index', { restaurants: restaurantSearch, keyword: keywords })
+
+    })
+    .catch(error=>console.log(error))
 })
 
 //Listen the server
